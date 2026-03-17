@@ -14,9 +14,9 @@ import type { RegisterFormData } from "@/components/auth/RegisterAccountForm";
 import type { BusinessFormData } from "@/components/auth/BusinessSetupForm";
 
 const STEPS = [
-  { number: 1, label: "Crear cuenta" },
-  { number: 2, label: "Agregar empresa" },
-  { number: 3, label: "Iniciando" },
+  { number: 1, label: "Crear Cuenta" },
+  { number: 2, label: "Agregar Empresa" },
+  { number: 3, label: "Iniciando tu cuenta" },
 ];
 
 const RegisterPage = () => {
@@ -40,7 +40,6 @@ const RegisterPage = () => {
 
   const handleRegister = (data: RegisterFormData) => {
     setIsLoading(true);
-    // Simulate API call
     setTimeout(() => {
       setIsLoading(false);
       setCurrentStep(2);
@@ -59,8 +58,14 @@ const RegisterPage = () => {
   return (
     <AuthOnboardingLayout>
       <div className="auth-container">
-        {/* Stepper */}
-        <div className="border-b border-border">
+        {/* Card Header with Logo + Stepper */}
+        <div className="auth-card-header">
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
+              <span className="text-primary-foreground font-bold text-xs">M</span>
+            </div>
+            <span className="text-foreground font-semibold text-sm hidden sm:block">Crea tu cuenta en MangoPOS</span>
+          </div>
           <AuthStepper steps={STEPS} currentStep={currentStep} />
         </div>
 
@@ -85,7 +90,7 @@ const RegisterPage = () => {
               className="flex flex-col lg:flex-row"
             >
               {/* Left: Form */}
-              <div className="flex-[3] p-8 sm:p-10 lg:p-12">
+              <div className="flex-[3] p-8 sm:p-10 lg:p-12 lg:border-r border-border">
                 {currentStep === 1 && (
                   <RegisterAccountForm onSubmit={handleRegister} isLoading={isLoading} />
                 )}
@@ -95,7 +100,7 @@ const RegisterPage = () => {
               </div>
 
               {/* Right: Summary */}
-              <div className="flex-[2] lg:border-l border-t lg:border-t-0 border-border">
+              <div className="flex-[2] border-t lg:border-t-0">
                 {currentStep === 1 && (
                   <PlanSummaryCard
                     plan={plan}

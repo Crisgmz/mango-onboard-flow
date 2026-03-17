@@ -21,11 +21,11 @@ const PasswordRecoveryForm = ({ onSubmit, isLoading }: PasswordRecoveryFormProps
 
   if (sent) {
     return (
-      <div className="w-full max-w-md mx-auto text-center py-8">
+      <div className="w-full text-center py-8">
         <div className="w-14 h-14 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-4">
           <CheckCircle2 className="w-7 h-7 text-success" />
         </div>
-        <h1 className="text-2xl font-bold text-foreground mb-2">Revisa tu correo</h1>
+        <h1 className="text-xl font-bold text-foreground mb-2">Revisa tu correo</h1>
         <p className="text-sm text-muted-foreground mb-6">
           Te enviamos un enlace para restablecer tu contraseña a <span className="font-medium text-foreground">{email}</span>
         </p>
@@ -37,15 +37,15 @@ const PasswordRecoveryForm = ({ onSubmit, isLoading }: PasswordRecoveryFormProps
   }
 
   return (
-    <div className="w-full max-w-md mx-auto">
-      <h1 className="text-2xl font-bold text-foreground mb-1">Recuperar contraseña</h1>
-      <p className="text-sm text-muted-foreground mb-6">
+    <div className="w-full">
+      <h1 className="text-xl font-bold text-foreground mb-1">Recuperar contraseña</h1>
+      <p className="text-sm text-muted-foreground mb-8">
         Ingresa tu correo y te enviaremos un enlace para restablecer tu contraseña.
       </p>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <label className="block text-sm font-medium text-foreground mb-1.5">Correo electrónico</label>
+          <label className="label-field">Correo electrónico</label>
           <input
             type="email"
             className="input-premium w-full"
