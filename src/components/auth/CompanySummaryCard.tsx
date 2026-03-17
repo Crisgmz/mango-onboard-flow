@@ -1,4 +1,4 @@
-import { Building2, Globe, Check, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import type { PlanInfo } from "@/lib/plans";
 
 interface CompanySummaryCardProps {
@@ -12,73 +12,62 @@ const CompanySummaryCard = ({ companyName, subdomain, plan }: CompanySummaryCard
   const billingLabel = plan.billing === 'yearly' ? '/año' : '/mes';
 
   return (
-    <div className="bg-surface-warm rounded-2xl p-6 h-full">
-      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">
-        Resumen de tu cuenta
-      </h3>
-
-      {/* Company preview */}
-      <div className="bg-surface rounded-xl p-5 shadow-sm border border-border/50 mb-4">
-        {companyName ? (
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-              <Building2 className="w-5 h-5 text-primary" />
-            </div>
-            <div>
-              <p className="font-semibold text-foreground text-sm">{companyName}</p>
-              {subdomain && (
-                <p className="text-xs text-muted-foreground flex items-center gap-1">
-                  <Globe className="w-3 h-3" />
-                  {subdomain}.mangopos.do
-                </p>
-              )}
-            </div>
-          </div>
-        ) : (
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
-              <Building2 className="w-5 h-5 text-muted-foreground" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Tu empresa aparecerá aquí</p>
-            </div>
-          </div>
-        )}
-
-        <div className="border-t border-border/50 pt-3 mt-3">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-muted-foreground">Plan</span>
-            <span className="badge-plan text-[10px]">Plan {plan.name}</span>
-          </div>
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-muted-foreground">Facturación</span>
-            <span className="text-xs font-medium text-foreground">
-              {plan.billing === 'yearly' ? 'Anual' : 'Mensual'}
-            </span>
-          </div>
-          {plan.trial > 0 && (
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-muted-foreground">Total hoy</span>
-              <span className="text-xs font-bold text-success">$0.00</span>
-            </div>
-          )}
+    <div className="p-6 h-full">
+      {/* Company info */}
+      <div className="rounded-lg border border-border p-5 mb-6">
+        <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">
-              {plan.trial > 0 ? 'Después del trial' : 'Precio'}
-            </span>
-            <span className="text-xs font-semibold text-foreground">${price}{billingLabel}</span>
+            <span className="text-sm font-medium text-foreground">Tipo:</span>
+            <span className="text-sm text-muted-foreground">{companyName ? "—" : ""}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-foreground">Empleados:</span>
+            <span className="text-sm text-muted-foreground"></span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-foreground">País:</span>
+            <span className="text-sm text-muted-foreground"></span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-foreground">Moneda:</span>
+            <span className="text-sm text-muted-foreground"></span>
           </div>
         </div>
       </div>
 
-      {plan.trial > 0 && (
-        <div className="flex items-center gap-2 p-3 rounded-xl bg-success/5 border border-success/10">
-          <Sparkles className="w-4 h-4 text-success flex-shrink-0" />
-          <p className="text-xs text-success font-medium">
-            {plan.trial} días de prueba gratis. Sin cargos hoy.
-          </p>
+      {/* Subscription */}
+      <h3 className="text-base font-semibold text-foreground mb-4">Tu suscripción</h3>
+
+      <div className="rounded-lg border border-border p-4 mb-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-foreground">Plan {plan.name}</p>
+              <p className="text-xs text-muted-foreground">Incluye 3 usuarios</p>
+            </div>
+          </div>
+          <span className="text-sm font-semibold text-foreground">${price}.00{billingLabel}</span>
         </div>
-      )}
+      </div>
+
+      {/* Totals */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <span className="text-base font-semibold text-foreground">Total Ahora</span>
+          <span className="text-base font-bold text-foreground">
+            {plan.trial > 0 ? "$0.00" : `$${price}.00`}
+          </span>
+        </div>
+        {plan.trial > 0 && (
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-muted-foreground">Después de {plan.trial}-días</span>
+            <span className="text-sm text-muted-foreground">US${price}.00</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

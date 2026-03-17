@@ -66,23 +66,22 @@ const BusinessSetupForm = ({ onSubmit, isLoading }: BusinessSetupFormProps) => {
     if (errors[field]) setErrors((e) => ({ ...e, [field]: undefined }));
   };
 
-  const selectClasses =
-    "input-premium w-full appearance-none bg-surface cursor-pointer";
+  const selectClasses = "input-premium w-full appearance-none bg-surface cursor-pointer";
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-foreground mb-1">Configura tu empresa</h1>
-      <p className="text-sm text-muted-foreground mb-6">
-        Cuéntanos sobre tu negocio para personalizar tu experiencia.
+      <h1 className="text-xl font-bold text-foreground mb-1">Agregar tu empresa</h1>
+      <p className="text-sm text-muted-foreground mb-8">
+        Provee la información de tu empresa.
       </p>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <label className="block text-sm font-medium text-foreground mb-1.5">Nombre del negocio</label>
+          <label className="label-field">Empresa</label>
           <input
             type="text"
             className="input-premium w-full"
-            placeholder="Ej: Restaurante El Mango"
+            placeholder="Nombre de tu empresa o negocio"
             value={form.businessName}
             onChange={(e) => updateField("businessName", e.target.value)}
           />
@@ -90,13 +89,13 @@ const BusinessSetupForm = ({ onSubmit, isLoading }: BusinessSetupFormProps) => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-foreground mb-1.5">Tipo de negocio</label>
+          <label className="label-field">Tipo de negocio</label>
           <select
             className={selectClasses}
             value={form.businessType}
             onChange={(e) => updateField("businessType", e.target.value)}
           >
-            <option value="">Seleccionar...</option>
+            <option value="">--Elija un tipo de empresa--</option>
             {BUSINESS_TYPES.map((t) => (
               <option key={t} value={t}>{t}</option>
             ))}
@@ -104,43 +103,29 @@ const BusinessSetupForm = ({ onSubmit, isLoading }: BusinessSetupFormProps) => {
           {errors.businessType && <p className="text-xs text-destructive mt-1">{errors.businessType}</p>}
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">País</label>
-            <select
-              className={selectClasses}
-              value={form.country}
-              onChange={(e) => updateField("country", e.target.value)}
-            >
-              {COUNTRIES.map((c) => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
-            {errors.country && <p className="text-xs text-destructive mt-1">{errors.country}</p>}
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">Moneda</label>
-            <select
-              className={selectClasses}
-              value={form.currency}
-              onChange={(e) => updateField("currency", e.target.value)}
-            >
-              {CURRENCIES.map((c) => (
-                <option key={c.code} value={c.code}>{c.name}</option>
-              ))}
-            </select>
-            {errors.currency && <p className="text-xs text-destructive mt-1">{errors.currency}</p>}
-          </div>
+        <div>
+          <label className="label-field">Ubicación de la empresa</label>
+          <select
+            className={selectClasses}
+            value={form.country}
+            onChange={(e) => updateField("country", e.target.value)}
+          >
+            <option value="">Seleccione un País</option>
+            {COUNTRIES.map((c) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
+          {errors.country && <p className="text-xs text-destructive mt-1">{errors.country}</p>}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-foreground mb-1.5">Tamaño del negocio</label>
+          <label className="label-field">Tamaño</label>
           <select
             className={selectClasses}
             value={form.businessSize}
             onChange={(e) => updateField("businessSize", e.target.value)}
           >
-            <option value="">Seleccionar...</option>
+            <option value="">Empleados</option>
             {BUSINESS_SIZES.map((s) => (
               <option key={s} value={s}>{s}</option>
             ))}
@@ -149,39 +134,14 @@ const BusinessSetupForm = ({ onSubmit, isLoading }: BusinessSetupFormProps) => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-foreground mb-1.5">Teléfono del negocio</label>
+          <label className="label-field">Teléfono (Opcional)</label>
           <input
             type="tel"
             className="input-premium w-full"
-            placeholder="+1 (809) 555-0000"
+            placeholder="(000) 000-0000"
             value={form.businessPhone}
             onChange={(e) => updateField("businessPhone", e.target.value)}
           />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-foreground mb-1.5">Subdominio</label>
-          <div className="flex items-center">
-            <div className="relative flex-1">
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                <Globe className="w-4 h-4" />
-              </div>
-              <input
-                type="text"
-                className="input-premium w-full pl-9 pr-[130px] rounded-r-none"
-                placeholder="tunegocio"
-                value={form.subdomain}
-                onChange={(e) => {
-                  setSlugEdited(true);
-                  updateField("subdomain", e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""));
-                }}
-              />
-            </div>
-            <div className="h-12 px-4 flex items-center bg-muted border border-l-0 border-border rounded-r-xl text-sm text-muted-foreground font-medium">
-              .mangopos.do
-            </div>
-          </div>
-          {errors.subdomain && <p className="text-xs text-destructive mt-1">{errors.subdomain}</p>}
         </div>
 
         <button
@@ -195,7 +155,7 @@ const BusinessSetupForm = ({ onSubmit, isLoading }: BusinessSetupFormProps) => {
               Configurando...
             </>
           ) : (
-            "Agregar empresa"
+            "Agregar Empresa"
           )}
         </button>
       </form>

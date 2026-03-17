@@ -58,21 +58,20 @@ const RegisterAccountForm = ({ onSubmit, isLoading }: RegisterAccountFormProps) 
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-foreground mb-1">Crea tu cuenta</h1>
+      <h1 className="text-xl font-bold text-foreground mb-1">Crea tu cuenta</h1>
       <p className="text-sm text-muted-foreground mb-1">
         Comienza a gestionar tu negocio con MangoPOS.
       </p>
-      <p className="text-sm text-muted-foreground mb-6">
+      <p className="text-sm text-muted-foreground mb-8">
         ¿Ya tienes cuenta?{" "}
         <Link to="/login" className="text-primary font-medium hover:underline">
           Iniciar sesión
         </Link>
       </p>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Full name */}
+      <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <label className="block text-sm font-medium text-foreground mb-1.5">Nombre completo</label>
+          <label className="label-field">Nombre completo</label>
           <input
             type="text"
             className="input-premium w-full"
@@ -83,9 +82,8 @@ const RegisterAccountForm = ({ onSubmit, isLoading }: RegisterAccountFormProps) 
           {errors.fullName && <p className="text-xs text-destructive mt-1">{errors.fullName}</p>}
         </div>
 
-        {/* Email */}
         <div>
-          <label className="block text-sm font-medium text-foreground mb-1.5">Correo electrónico</label>
+          <label className="label-field">Correo electrónico</label>
           <input
             type="email"
             className="input-premium w-full"
@@ -96,9 +94,8 @@ const RegisterAccountForm = ({ onSubmit, isLoading }: RegisterAccountFormProps) 
           {errors.email && <p className="text-xs text-destructive mt-1">{errors.email}</p>}
         </div>
 
-        {/* Phone */}
         <div>
-          <label className="block text-sm font-medium text-foreground mb-1.5">Teléfono</label>
+          <label className="label-field">Teléfono</label>
           <input
             type="tel"
             className="input-premium w-full"
@@ -109,9 +106,8 @@ const RegisterAccountForm = ({ onSubmit, isLoading }: RegisterAccountFormProps) 
           {errors.phone && <p className="text-xs text-destructive mt-1">{errors.phone}</p>}
         </div>
 
-        {/* Password */}
         <div>
-          <label className="block text-sm font-medium text-foreground mb-1.5">Contraseña</label>
+          <label className="label-field">Contraseña</label>
           <div className="relative">
             <input
               type={showPassword ? "text" : "password"}
@@ -131,9 +127,8 @@ const RegisterAccountForm = ({ onSubmit, isLoading }: RegisterAccountFormProps) 
           {errors.password && <p className="text-xs text-destructive mt-1">{errors.password}</p>}
         </div>
 
-        {/* Confirm password */}
         <div>
-          <label className="block text-sm font-medium text-foreground mb-1.5">Confirmar contraseña</label>
+          <label className="label-field">Confirmar contraseña</label>
           <div className="relative">
             <input
               type={showConfirm ? "text" : "password"}
@@ -153,7 +148,6 @@ const RegisterAccountForm = ({ onSubmit, isLoading }: RegisterAccountFormProps) 
           {errors.confirmPassword && <p className="text-xs text-destructive mt-1">{errors.confirmPassword}</p>}
         </div>
 
-        {/* Terms */}
         <div className="space-y-3 pt-1">
           <label className="flex items-start gap-2.5 cursor-pointer">
             <input
@@ -184,7 +178,6 @@ const RegisterAccountForm = ({ onSubmit, isLoading }: RegisterAccountFormProps) 
           {errors.acceptPrivacy && <p className="text-xs text-destructive ml-6">{errors.acceptPrivacy}</p>}
         </div>
 
-        {/* Submit */}
         <button
           type="submit"
           disabled={isLoading}

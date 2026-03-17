@@ -28,19 +28,14 @@ const AuthLoginForm = ({ onSubmit, isLoading }: AuthLoginFormProps) => {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto">
-      <h1 className="text-2xl font-bold text-foreground mb-1">Iniciar sesión</h1>
-      <p className="text-sm text-muted-foreground mb-6">
-        Accede a tu cuenta de MangoPOS.
-      </p>
-
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="w-full">
+      <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <label className="block text-sm font-medium text-foreground mb-1.5">Correo electrónico</label>
+          <label className="label-field">Usuario / Email</label>
           <input
             type="email"
             className="input-premium w-full"
-            placeholder="tu@email.com"
+            placeholder="Email"
             value={email}
             onChange={(e) => { setEmail(e.target.value); setErrors({}); }}
           />
@@ -48,17 +43,12 @@ const AuthLoginForm = ({ onSubmit, isLoading }: AuthLoginFormProps) => {
         </div>
 
         <div>
-          <div className="flex items-center justify-between mb-1.5">
-            <label className="text-sm font-medium text-foreground">Contraseña</label>
-            <Link to="/forgot-password" className="text-xs text-primary hover:underline font-medium">
-              Olvidé mi contraseña
-            </Link>
-          </div>
+          <label className="label-field">Contraseña</label>
           <div className="relative">
             <input
               type={showPassword ? "text" : "password"}
               className="input-premium w-full pr-11"
-              placeholder="Tu contraseña"
+              placeholder="Contraseña"
               value={password}
               onChange={(e) => { setPassword(e.target.value); setErrors({}); }}
             />
@@ -73,15 +63,9 @@ const AuthLoginForm = ({ onSubmit, isLoading }: AuthLoginFormProps) => {
           {errors.password && <p className="text-xs text-destructive mt-1">{errors.password}</p>}
         </div>
 
-        <label className="flex items-center gap-2.5 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={remember}
-            onChange={(e) => setRemember(e.target.checked)}
-            className="w-4 h-4 rounded border-border text-primary focus:ring-primary/20 accent-primary"
-          />
-          <span className="text-sm text-muted-foreground">Recordar sesión</span>
-        </label>
+        <Link to="/forgot-password" className="block text-sm text-primary hover:underline font-medium">
+          Olvidó su contraseña
+        </Link>
 
         <button
           type="submit"
@@ -94,17 +78,10 @@ const AuthLoginForm = ({ onSubmit, isLoading }: AuthLoginFormProps) => {
               Iniciando sesión...
             </>
           ) : (
-            "Iniciar sesión"
+            "Login"
           )}
         </button>
       </form>
-
-      <p className="text-sm text-muted-foreground text-center mt-6">
-        ¿No tienes cuenta?{" "}
-        <Link to="/register?plan=pro&billing=monthly&trial=14" className="text-primary font-medium hover:underline">
-          Crear cuenta
-        </Link>
-      </p>
     </div>
   );
 };
