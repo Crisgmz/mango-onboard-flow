@@ -1,4 +1,4 @@
-import { Sparkles } from "lucide-react";
+import { Globe, Sparkles } from "lucide-react";
 import type { PlanInfo } from "@/lib/plans";
 
 interface CompanySummaryCardProps {
@@ -12,58 +12,57 @@ const CompanySummaryCard = ({ companyName, subdomain, plan }: CompanySummaryCard
   const billingLabel = plan.billing === 'yearly' ? '/año' : '/mes';
 
   return (
-    <div className="p-6 h-full">
-      {/* Company info */}
-      <div className="rounded-lg border border-border p-5 mb-6">
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-foreground">Tipo:</span>
-            <span className="text-sm text-muted-foreground">{companyName ? "—" : ""}</span>
+    <div className="p-7 h-full lg:p-8">
+      <p className="auth-kicker">Resumen de empresa</p>
+      <h3 className="mt-2 text-[1.45rem] font-medium tracking-[-0.03em] text-foreground">
+        {companyName || "Tu negocio en MangoPOS"}
+      </h3>
+      <p className="mt-2 text-sm leading-6 text-muted-foreground">
+        Revisa la información principal antes de terminar la configuración inicial.
+      </p>
+
+      <div className="mt-6 rounded-2xl border border-border bg-white p-5 shadow-sm">
+        <div className="flex items-start gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+            <Globe className="h-4 w-4" />
           </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-foreground">Empleados:</span>
-            <span className="text-sm text-muted-foreground"></span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-foreground">País:</span>
-            <span className="text-sm text-muted-foreground"></span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-foreground">Moneda:</span>
-            <span className="text-sm text-muted-foreground"></span>
+          <div>
+            <p className="text-sm font-medium text-foreground">Subdominio sugerido</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {subdomain ? `${subdomain}.mangopos.do` : "tunegocio.mangopos.do"}
+            </p>
           </div>
         </div>
       </div>
 
-      {/* Subscription */}
-      <h3 className="text-base font-semibold text-foreground mb-4">Tu suscripción</h3>
-
-      <div className="rounded-lg border border-border p-4 mb-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-primary" />
+      <div className="mt-8">
+        <p className="text-sm font-medium text-foreground mb-4">Plan seleccionado</p>
+        <div className="rounded-2xl border border-border bg-white p-5 shadow-sm">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-foreground">Plan {plan.name}</p>
+                <p className="text-xs text-muted-foreground">{plan.billing === 'yearly' ? 'Facturación anual' : 'Facturación mensual'}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-sm font-semibold text-foreground">Plan {plan.name}</p>
-              <p className="text-xs text-muted-foreground">Incluye 3 usuarios</p>
-            </div>
+            <span className="text-sm font-medium text-foreground">${price}.00{billingLabel}</span>
           </div>
-          <span className="text-sm font-semibold text-foreground">${price}.00{billingLabel}</span>
         </div>
       </div>
 
-      {/* Totals */}
-      <div className="space-y-3">
+      <div className="mt-6 space-y-3 border-t border-border pt-6">
         <div className="flex items-center justify-between">
-          <span className="text-base font-semibold text-foreground">Total Ahora</span>
-          <span className="text-base font-bold text-foreground">
+          <span className="text-base font-medium text-foreground">Total ahora</span>
+          <span className="text-base font-medium text-foreground">
             {plan.trial > 0 ? "$0.00" : `$${price}.00`}
           </span>
         </div>
         {plan.trial > 0 && (
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Después de {plan.trial}-días</span>
+            <span className="text-sm text-muted-foreground">Después de {plan.trial} días</span>
             <span className="text-sm text-muted-foreground">US${price}.00</span>
           </div>
         )}

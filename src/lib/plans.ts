@@ -18,9 +18,9 @@ export interface OnboardingParams {
 }
 
 export const PLANS: Record<string, PlanInfo> = {
-  starter: {
-    id: 'starter',
-    name: 'Starter',
+  base: {
+    id: 'base',
+    name: 'Base',
     billing: 'monthly',
     trial: 14,
     price: 29,
@@ -76,7 +76,9 @@ export function parseOnboardingParams(searchParams: URLSearchParams): Onboarding
 }
 
 export function getPlanInfo(params: OnboardingParams): PlanInfo | null {
-  const plan = PLANS[params.plan];
+  const normalizedPlan = params.plan === 'starter' ? 'base' : params.plan;
+  const fallbackPlan = PLANS.base;
+  const plan = PLANS[normalizedPlan] || (normalizedPlan ? null : fallbackPlan);
   if (!plan) return null;
   return {
     ...plan,

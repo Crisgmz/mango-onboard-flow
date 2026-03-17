@@ -5,9 +5,10 @@ import { Link } from "react-router-dom";
 interface PasswordRecoveryFormProps {
   onSubmit: (email: string) => void;
   isLoading?: boolean;
+  success?: boolean;
 }
 
-const PasswordRecoveryForm = ({ onSubmit, isLoading }: PasswordRecoveryFormProps) => {
+const PasswordRecoveryForm = ({ onSubmit, isLoading, success }: PasswordRecoveryFormProps) => {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
@@ -19,7 +20,7 @@ const PasswordRecoveryForm = ({ onSubmit, isLoading }: PasswordRecoveryFormProps
     setSent(true);
   };
 
-  if (sent) {
+  if (success || sent) {
     return (
       <div className="w-full text-center py-8">
         <div className="w-14 h-14 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-4">

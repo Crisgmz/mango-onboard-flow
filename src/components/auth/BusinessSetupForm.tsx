@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Loader2, Globe } from "lucide-react";
+import { Building2, Globe, Loader2, Phone, MapPin, BriefcaseBusiness } from "lucide-react";
 import {
   generateSlug,
   BUSINESS_TYPES,
@@ -48,10 +48,9 @@ const BusinessSetupForm = ({ onSubmit, isLoading }: BusinessSetupFormProps) => {
     if (!form.businessType) errs.businessType = "Selecciona el tipo de negocio";
     if (!form.country) errs.country = "Selecciona un país";
     if (!form.currency) errs.currency = "Selecciona una moneda";
-    if (!form.businessSize) errs.businessSize = "Selecciona el tamaño";
+    if (!form.businessSize) errs.businessSize = "Selecciona el tamaño del negocio";
     if (!form.subdomain.trim()) errs.subdomain = "Ingresa un subdominio";
-    else if (!/^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/.test(form.subdomain))
-      errs.subdomain = "Solo letras minúsculas, números y guiones";
+    else if (!/^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/.test(form.subdomain)) errs.subdomain = "Solo letras minúsculas, números y guiones";
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -63,99 +62,129 @@ const BusinessSetupForm = ({ onSubmit, isLoading }: BusinessSetupFormProps) => {
 
   const updateField = (field: keyof BusinessFormData, value: string) => {
     setForm((f) => ({ ...f, [field]: value }));
-    if (errors[field]) setErrors((e) => ({ ...e, [field]: undefined }));
+    if (errors[field]) setErrors((current) => ({ ...current, [field]: undefined }));
   };
 
-  const selectClasses = "input-premium w-full appearance-none bg-surface cursor-pointer";
+  const selectClasses = "input-premium w-full appearance-none bg-white cursor-pointer";
 
   return (
     <div>
-      <h1 className="text-xl font-bold text-foreground mb-1">Agregar tu empresa</h1>
-      <p className="text-sm text-muted-foreground mb-8">
-        Provee la información de tu empresa.
-      </p>
+      <div className="mb-8">
+        <p className="auth-kicker">Paso 2 de 3</p>
+        <h1 className="auth-title mt-2">Configura tu empresa</h1>
+        <p className="auth-text mt-3">Completa los datos principales del negocio y define el subdominio con el que entrarás al sistema.</p>
+      </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <label className="label-field">Empresa</label>
-          <input
-            type="text"
-            className="input-premium w-full"
-            placeholder="Nombre de tu empresa o negocio"
-            value={form.businessName}
-            onChange={(e) => updateField("businessName", e.target.value)}
-          />
-          {errors.businessName && <p className="text-xs text-destructive mt-1">{errors.businessName}</p>}
+          <label className="label-field">Nombre del negocio</label>
+          <div className="relative">
+            <Building2 className="input-icon" />
+            <input
+              type="text"
+              className="input-premium w-full pl-11"
+              placeholder="Ej. Restaurante El Mango"
+              value={form.businessName}
+              onChange={(e) => updateField("businessName", e.target.value)}
+            />
+          </div>
+          {errors.businessName && <p className="mt-1 text-xs text-destructive">{errors.businessName}</p>}
         </div>
 
         <div>
           <label className="label-field">Tipo de negocio</label>
-          <select
-            className={selectClasses}
-            value={form.businessType}
-            onChange={(e) => updateField("businessType", e.target.value)}
-          >
-            <option value="">--Elija un tipo de empresa--</option>
-            {BUSINESS_TYPES.map((t) => (
-              <option key={t} value={t}>{t}</option>
-            ))}
-          </select>
-          {errors.businessType && <p className="text-xs text-destructive mt-1">{errors.businessType}</p>}
+          <div className="relative">
+            <BriefcaseBusiness className="input-icon" />
+            <select className={`${selectClasses} pl-11`} value={form.businessType} onChange={(e) => updateField("businessType", e.target.value)}>
+              <option value="">Selecciona el tipo de negocio</option>
+              {BUSINESS_TYPES.map((t) => (
+                <option key={t} value={t}>{t}</option>
+              ))}
+            </select>
+          </div>
+          {errors.businessType && <p className="mt-1 text-xs text-destructive">{errors.businessType}</p>}
+        </div>
+
+        <div className="grid gap-5 sm:grid-cols-2">
+          <div>
+            <label className="label-field">País</label>
+            <div className="relative">
+              <MapPin className="input-icon" />
+              <select className={`${selectClasses} pl-11`} value={form.country} onChange={(e) => updateField("country", e.target.value)}>
+                <option value="">Selecciona un país</option>
+                {COUNTRIES.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+            </div>
+            {errors.country && <p className="mt-1 text-xs text-destructive">{errors.country}</p>}
+          </div>
+
+          <div>
+            <label className="label-field">Moneda</label>
+            <select className={selectClasses} value={form.currency} onChange={(e) => updateField("currency", e.target.value)}>
+              {CURRENCIES.map((currency) => (
+                <option key={currency.code} value={currency.code}>{currency.name}</option>
+              ))}
+            </select>
+            {errors.currency && <p className="mt-1 text-xs text-destructive">{errors.currency}</p>}
+          </div>
+        </div>
+
+        <div className="grid gap-5 sm:grid-cols-2">
+          <div>
+            <label className="label-field">Tamaño del negocio</label>
+            <select className={selectClasses} value={form.businessSize} onChange={(e) => updateField("businessSize", e.target.value)}>
+              <option value="">Selecciona una opción</option>
+              {BUSINESS_SIZES.map((s) => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
+            {errors.businessSize && <p className="mt-1 text-xs text-destructive">{errors.businessSize}</p>}
+          </div>
+
+          <div>
+            <label className="label-field">Teléfono del negocio</label>
+            <div className="relative">
+              <Phone className="input-icon" />
+              <input
+                type="tel"
+                className="input-premium w-full pl-11"
+                placeholder="+1 809 555 0000"
+                value={form.businessPhone}
+                onChange={(e) => updateField("businessPhone", e.target.value)}
+              />
+            </div>
+          </div>
         </div>
 
         <div>
-          <label className="label-field">Ubicación de la empresa</label>
-          <select
-            className={selectClasses}
-            value={form.country}
-            onChange={(e) => updateField("country", e.target.value)}
-          >
-            <option value="">Seleccione un País</option>
-            {COUNTRIES.map((c) => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
-          {errors.country && <p className="text-xs text-destructive mt-1">{errors.country}</p>}
+          <label className="label-field">Subdominio</label>
+          <div className="relative">
+            <Globe className="input-icon" />
+            <input
+              type="text"
+              className="input-premium w-full pl-11"
+              placeholder="tunegocio"
+              value={form.subdomain}
+              onChange={(e) => {
+                setSlugEdited(true);
+                updateField("subdomain", generateSlug(e.target.value));
+              }}
+            />
+          </div>
+          <p className="mt-2 text-sm text-muted-foreground">Tu acceso quedará como <span className="font-medium text-foreground">{form.subdomain || "tunegocio"}.mangopos.do</span></p>
+          {errors.subdomain && <p className="mt-1 text-xs text-destructive">{errors.subdomain}</p>}
         </div>
 
-        <div>
-          <label className="label-field">Tamaño</label>
-          <select
-            className={selectClasses}
-            value={form.businessSize}
-            onChange={(e) => updateField("businessSize", e.target.value)}
-          >
-            <option value="">Empleados</option>
-            {BUSINESS_SIZES.map((s) => (
-              <option key={s} value={s}>{s}</option>
-            ))}
-          </select>
-          {errors.businessSize && <p className="text-xs text-destructive mt-1">{errors.businessSize}</p>}
-        </div>
-
-        <div>
-          <label className="label-field">Teléfono (Opcional)</label>
-          <input
-            type="tel"
-            className="input-premium w-full"
-            placeholder="(000) 000-0000"
-            value={form.businessPhone}
-            onChange={(e) => updateField("businessPhone", e.target.value)}
-          />
-        </div>
-
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="btn-primary w-full flex items-center justify-center gap-2 mt-2"
-        >
+        <button type="submit" disabled={isLoading} className="btn-primary mt-2 w-full flex items-center justify-center gap-2">
           {isLoading ? (
             <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              Configurando...
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Configurando empresa...
             </>
           ) : (
-            "Agregar Empresa"
+            "Continuar"
           )}
         </button>
       </form>

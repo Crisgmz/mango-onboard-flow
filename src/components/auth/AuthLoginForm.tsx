@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2, Lock, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface AuthLoginFormProps {
@@ -16,7 +16,8 @@ const AuthLoginForm = ({ onSubmit, isLoading }: AuthLoginFormProps) => {
 
   const validate = () => {
     const errs: typeof errors = {};
-    if (!email.trim()) errs.email = "Ingresa tu correo";
+    if (!email.trim()) errs.email = "Ingresa tu correo electrónico";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errs.email = "Ingresa un correo válido";
     if (!password) errs.password = "Ingresa tu contraseña";
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -29,56 +30,86 @@ const AuthLoginForm = ({ onSubmit, isLoading }: AuthLoginFormProps) => {
 
   return (
     <div className="w-full">
+      <div className="mb-8">
+        <p className="auth-kicker">Acceso seguro</p>
+        <h1 className="auth-title mt-2">Iniciar sesión</h1>
+        <p className="auth-text mt-3">
+          Accede a tu cuenta de MangoPOS para continuar con la operación de tu negocio.
+        </p>
+      </div>
+
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <label className="label-field">Usuario / Email</label>
-          <input
-            type="email"
-            className="input-premium w-full"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => { setEmail(e.target.value); setErrors({}); }}
-          />
-          {errors.email && <p className="text-xs text-destructive mt-1">{errors.email}</p>}
+          <label className="label-field">Correo electrónico</label>
+          <div className="relative">
+            <Mail className="input-icon" />
+            <input
+              type="email"
+              className="input-premium w-full pl-11"
+              placeholder="tu@empresa.com"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setErrors((current) => ({ ...current, email: undefined }));
+              }}
+            />
+          </div>
+          {errors.email && <p className="mt-1 text-xs text-destructive">{errors.email}</p>}
         </div>
 
         <div>
-          <label className="label-field">Contraseña</label>
+          <div className="mb-2 flex items-center justify-between gap-3">
+            <label className="label-field mb-0">Contraseña</label>
+            <Link to="/forgot-password" className="text-sm font-medium text-primary hover:underline underline-offset-4">
+              ¿Olvidaste tu contraseña?
+            </Link>
+          </div>
           <div className="relative">
+            <Lock className="input-icon" />
             <input
               type={showPassword ? "text" : "password"}
-              className="input-premium w-full pr-11"
-              placeholder="Contraseña"
+              className="input-premium w-full pl-11 pr-12"
+              placeholder="Ingresa tu contraseña"
               value={password}
-              onChange={(e) => { setPassword(e.target.value); setErrors({}); }}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setErrors((current) => ({ ...current, password: undefined }));
+              }}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
             >
-              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
-          {errors.password && <p className="text-xs text-destructive mt-1">{errors.password}</p>}
+          {errors.password && <p className="mt-1 text-xs text-destructive">{errors.password}</p>}
         </div>
 
-        <Link to="/forgot-password" className="block text-sm text-primary hover:underline font-medium">
-          Olvidó su contraseña
-        </Link>
+        <label className="flex items-center gap-2.5 pt-1 text-sm text-muted-foreground cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={remember}
+            onChange={(e) => setRemember(e.target.checked)}
+            className="h-4 w-4 rounded border-border accent-primary"
+          />
+          Mantener mi sesión iniciada
+        </label>
 
         <button
           type="submit"
           disabled={isLoading}
-          className="btn-primary w-full flex items-center justify-center gap-2"
+          className="btn-primary mt-2 w-full flex items-center justify-center gap-2"
         >
           {isLoading ? (
             <>
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="h-4 w-4 animate-spin" />
               Iniciando sesión...
             </>
           ) : (
-            "Login"
+            "Iniciar sesión"
           )}
         </button>
       </form>

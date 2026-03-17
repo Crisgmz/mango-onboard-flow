@@ -10,8 +10,10 @@ import CompanySummaryCard from "@/components/auth/CompanySummaryCard";
 import RedirectState from "@/components/auth/RedirectState";
 import AuthErrorState from "@/components/auth/AuthErrorState";
 import { parseOnboardingParams, getPlanInfo } from "@/lib/plans";
+import { registerBusinessOnboarding } from "@/lib/auth";
 import type { RegisterFormData } from "@/components/auth/RegisterAccountForm";
 import type { BusinessFormData } from "@/components/auth/BusinessSetupForm";
+import { AlertTriangle } from "lucide-react";
 
 const STEPS = [
   { number: 1, label: "Crear Cuenta" },
@@ -26,7 +28,9 @@ const RegisterPage = () => {
 
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [registerData, setRegisterData] = useState<RegisterFormData | null>(null);
   const [businessData, setBusinessData] = useState<BusinessFormData | null>(null);
+  const [submissionError, setSubmissionError] = useState<string | null>(null);
 
   if (!plan) {
     return (
@@ -39,37 +43,70 @@ const RegisterPage = () => {
   }
 
   const handleRegister = (data: RegisterFormData) => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      setCurrentStep(2);
-    }, 1500);
+    setRegisterData(data);
+    setSubmissionError(null);
+    setCurrentStep(2);
   };
 
-  const handleBusinessSetup = (data: BusinessFormData) => {
+  const handleBusinessSetup = async (data: BusinessFormData) => {
+    if (!registerData) {
+      setSubmissionError("Primero debemos completar los datos de la cuenta.");
+      setCurrentStep(1);
+      return;
+    }
+
     setBusinessData(data);
     setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
+    setSubmissionError(null);
+
+    try {
+      await registerBusinessOnboarding({
+        fullName: registerData.fullName,
+        email: registerData.email,
+        phone: registerData.phone,
+        password: registerData.password,
+        businessName: data.businessName,
+        businessType: data.businessType,
+        country: data.country,
+        businessPhone: data.businessPhone,
+        domain: data.subdomain,
+        planCode: plan.id,
+        billingCycle: plan.billing,
+        trialDays: plan.trial,
+        source: params.source,
+        campaign: params.campaign,
+      });
+
       setCurrentStep(3);
-    }, 1200);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "No pudimos completar el registro. Verifica la configuración de Supabase e inténtalo de nuevo.";
+      setSubmissionError(message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <AuthOnboardingLayout>
-      <div className="auth-container">
-        {/* Card Header with Logo + Stepper */}
+      <div className="auth-container max-w-[920px]">
         <div className="auth-card-header">
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-xs">M</span>
+          <div className="flex items-center gap-3">
+            <div className="brand-mark h-9 w-9 rounded-xl text-[11px]">M</div>
+            <div className="hidden sm:block">
+              <p className="text-sm font-medium text-foreground">Crea tu cuenta en MangoPOS</p>
+              <p className="text-xs text-muted-foreground">Onboarding de nuevos negocios</p>
             </div>
-            <span className="text-foreground font-semibold text-sm hidden sm:block">Crea tu cuenta en MangoPOS</span>
           </div>
           <AuthStepper steps={STEPS} currentStep={currentStep} />
         </div>
 
-        {/* Content */}
+        {submissionError && currentStep !== 3 && (
+          <div className="mx-8 mt-6 flex items-start gap-3 rounded-[10px] border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive sm:mx-10 lg:mx-12">
+            <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+            <p>{submissionError}</p>
+          </div>
+        )}
+
         <AnimatePresence mode="wait">
           {currentStep === 3 ? (
             <motion.div
@@ -89,8 +126,7 @@ const RegisterPage = () => {
               transition={{ duration: 0.15 }}
               className="flex flex-col lg:flex-row"
             >
-              {/* Left: Form */}
-              <div className="flex-[3] p-8 sm:p-10 lg:p-12 lg:border-r border-border">
+              <div className="flex-[3] p-8 sm:p-10 lg:border-r lg:p-12 border-border">
                 {currentStep === 1 && (
                   <RegisterAccountForm onSubmit={handleRegister} isLoading={isLoading} />
                 )}
@@ -99,7 +135,6 @@ const RegisterPage = () => {
                 )}
               </div>
 
-              {/* Right: Summary */}
               <div className="flex-[2] border-t lg:border-t-0">
                 {currentStep === 1 && (
                   <PlanSummaryCard

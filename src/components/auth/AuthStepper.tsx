@@ -21,20 +21,20 @@ const AuthStepper = ({ steps, currentStep }: AuthStepperProps) => {
 
         return (
           <div key={step.number} className="flex items-center">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2.5">
               <div
                 className={cn(
-                  "w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold transition-all duration-150",
+                  "flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-medium transition-all duration-150",
                   isCompleted && "bg-primary text-primary-foreground",
-                  isActive && "bg-primary text-primary-foreground",
+                  isActive && "bg-primary text-primary-foreground shadow-sm",
                   !isCompleted && !isActive && "bg-muted text-muted-foreground"
                 )}
               >
-                {isCompleted ? <Check className="w-3.5 h-3.5" /> : step.number}
+                {isCompleted ? <Check className="h-3.5 w-3.5" /> : step.number}
               </div>
               <span
                 className={cn(
-                  "text-sm font-medium whitespace-nowrap hidden sm:block",
+                  "hidden whitespace-nowrap text-sm font-normal sm:block",
                   (isActive || isCompleted) && "text-foreground",
                   !isActive && !isCompleted && "text-muted-foreground"
                 )}
@@ -45,8 +45,8 @@ const AuthStepper = ({ steps, currentStep }: AuthStepperProps) => {
             {!isLast && (
               <div
                 className={cn(
-                  "w-10 sm:w-16 h-px mx-3 transition-all duration-150",
-                  isCompleted ? "bg-primary" : "bg-border"
+                  "mx-3 h-px w-8 sm:w-14 transition-all duration-150",
+                  isCompleted ? "bg-primary/70" : "bg-border"
                 )}
               />
             )}

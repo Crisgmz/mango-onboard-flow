@@ -38,7 +38,7 @@ const ERROR_CONFIG: Record<AuthErrorType, { title: string; description: string; 
     title: "Sin empresa configurada",
     description: "Tu cuenta no tiene una empresa asociada. Completa el proceso de registro para continuar.",
     cta: "Completar registro",
-    ctaLink: "/register?plan=pro&billing=monthly&trial=14",
+    ctaLink: "/register?plan=base&billing=monthly&trial=14",
   },
   business_inactive: {
     title: "Empresa inactiva",

@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { Link } from "react-router-dom";
 
 interface AuthOnboardingLayoutProps {
   children: ReactNode;
@@ -6,19 +7,21 @@ interface AuthOnboardingLayoutProps {
 
 const AuthOnboardingLayout = ({ children }: AuthOnboardingLayoutProps) => {
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* Main */}
-      <main className="flex-1 flex items-start justify-center px-4 py-8 sm:py-12">
+    <div className="min-h-screen auth-shell flex flex-col">
+      <main className="flex-1 flex items-center justify-center px-4 py-10 sm:px-6 sm:py-14">
         {children}
       </main>
 
-      {/* Footer */}
-      <footer className="w-full py-4 px-6 text-center">
-        <p className="text-xs text-muted-foreground">
+      <footer className="w-full px-6 pb-8 text-center">
+        <p className="text-xs sm:text-sm text-muted-foreground">
           MangoPOS © {new Date().getFullYear()}{" "}
-          <a href="#" className="text-primary hover:underline">Términos de Uso</a>
-          {" & "}
-          <a href="#" className="text-primary hover:underline">Privacidad</a>
+          <Link to="/terminos" className="text-primary hover:underline underline-offset-4">
+            Términos de Uso
+          </Link>
+          {" "}&amp;{" "}
+          <Link to="/privacidad" className="text-primary hover:underline underline-offset-4">
+            Privacidad
+          </Link>
         </p>
       </footer>
     </div>
