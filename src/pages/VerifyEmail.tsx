@@ -1,10 +1,23 @@
 import AuthOnboardingLayout from "@/components/auth/AuthOnboardingLayout";
 import EmailVerificationState from "@/components/auth/EmailVerificationState";
 import { useSearchParams } from "react-router-dom";
+import { resendVerificationEmail } from "@/lib/auth";
+import { useState } from "react";
 
 const VerifyEmailPage = () => {
   const [searchParams] = useSearchParams();
   const email = searchParams.get("email") || undefined;
+  const [isResending, setIsResending] = useState(false);
+
+  const handleResend = async () => {
+    if (!email) return;
+    setIsResending(true);
+    try {
+      await resendVerificationEmail(email);
+    } finally {
+      setIsResending(false);
+    }
+  };
 
   return (
     <AuthOnboardingLayout>
@@ -18,7 +31,7 @@ const VerifyEmailPage = () => {
           </div>
         </div>
         <div className="p-8 sm:p-10">
-          <EmailVerificationState email={email} onResend={() => {}} />
+          <EmailVerificationState email={email} onResend={handleResend} isResending={isResending} />
         </div>
       </div>
     </AuthOnboardingLayout>

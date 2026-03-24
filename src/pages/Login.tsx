@@ -31,32 +31,27 @@ const LoginPage = () => {
     setLoginError(null);
 
     try {
-      // Login con Supabase
       const authData = await login({ email: data.email, password: data.password });
 
       if (!authData.user) {
         throw new Error("No se pudo iniciar sesión");
       }
 
-      // Obtener negocios del usuario
       const businesses = await getUserBusinesses();
 
       if (!businesses || businesses.length === 0) {
         throw new Error("No tienes negocios asociados. Completa el registro.");
       }
 
-      // Si tiene un solo negocio, redirigir directamente
       if (businesses.length === 1) {
-        const business = businesses[0] as { businesses: { domain: string } };
-        const domain = business.businesses?.domain;
+        const domain = businesses[0].businesses?.domain;
         if (domain) {
-          window.location.href = `https://${domain}`;
+          window.location.assign(`https://${domain}`);
           return;
         }
       }
 
-      // Si tiene varios negocios, ir a selector
-      window.location.href = "/select-business";
+      window.location.assign("/select-business");
     } catch (error) {
       const message = error instanceof Error ? error.message : "Credenciales inválidas. Verifica tu email y contraseña.";
       setLoginError(message);

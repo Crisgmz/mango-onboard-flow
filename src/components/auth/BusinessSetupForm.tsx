@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Building2, Globe, Loader2, Phone, MapPin, BriefcaseBusiness } from "lucide-react";
+import { Building2, Globe, Loader2, Phone, MapPin, BriefcaseBusiness, CheckCircle2, AlertTriangle } from "lucide-react";
 import {
   generateSlug,
   BUSINESS_TYPES,
@@ -7,6 +7,7 @@ import {
   COUNTRIES,
   CURRENCIES,
 } from "@/lib/plans";
+import { isDomainAvailable } from "@/lib/auth";
 
 interface BusinessSetupFormProps {
   onSubmit: (data: BusinessFormData) => void;
@@ -23,6 +24,14 @@ export interface BusinessFormData {
   subdomain: string;
 }
 
+type DomainStatus =
+  | { state: "idle" }
+  | { state: "checking" }
+  | { state: "available"; domain: string }
+  | { state: "taken"; message: string }
+  | { state: "invalid"; message: string }
+  | { state: "error"; message: string };
+
 const BusinessSetupForm = ({ onSubmit, isLoading }: BusinessSetupFormProps) => {
   const [form, setForm] = useState<BusinessFormData>({
     businessName: "",
@@ -35,12 +44,61 @@ const BusinessSetupForm = ({ onSubmit, isLoading }: BusinessSetupFormProps) => {
   });
   const [errors, setErrors] = useState<Partial<Record<keyof BusinessFormData, string>>>({});
   const [slugEdited, setSlugEdited] = useState(false);
+  const [domainStatus, setDomainStatus] = useState<DomainStatus>({ state: "idle" });
 
   useEffect(() => {
     if (!slugEdited && form.businessName) {
       setForm((f) => ({ ...f, subdomain: generateSlug(f.businessName) }));
     }
   }, [form.businessName, slugEdited]);
+
+  useEffect(() => {
+    const subdomain = form.subdomain.trim();
+
+    if (!subdomain) {
+      setDomainStatus({ state: "idle" });
+      return;
+    }
+
+    if (!/^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/.test(subdomain)) {
+      setDomainStatus({ state: "invalid", message: "Solo letras minúsculas, números y guiones." });
+      return;
+    }
+
+    if (subdomain.length < 3) {
+      setDomainStatus({ state: "invalid", message: "Usa al menos 3 caracteres." });
+      return;
+    }
+
+    let cancelled = false;
+    setDomainStatus({ state: "checking" });
+
+    const timer = window.setTimeout(async () => {
+      try {
+        const result = await isDomainAvailable(subdomain);
+        if (cancelled) return;
+        if (result.available) {
+          setDomainStatus({ state: "available", domain: result.domain });
+        } else {
+          setDomainStatus({ state: "taken", message: `El dominio ${result.domain} ya está en uso.` });
+        }
+      } catch (error) {
+        if (cancelled) return;
+        const message = error instanceof Error ? error.message : "No pudimos validar el subdominio.";
+        const lowered = message.toLowerCase();
+        if (lowered.includes("reservado") || lowered.includes("inválido") || lowered.includes("3 caracteres")) {
+          setDomainStatus({ state: "invalid", message });
+        } else {
+          setDomainStatus({ state: "error", message });
+        }
+      }
+    }, 450);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [form.subdomain]);
 
   const validate = () => {
     const errs: typeof errors = {};
@@ -51,6 +109,9 @@ const BusinessSetupForm = ({ onSubmit, isLoading }: BusinessSetupFormProps) => {
     if (!form.businessSize) errs.businessSize = "Selecciona el tamaño del negocio";
     if (!form.subdomain.trim()) errs.subdomain = "Ingresa un subdominio";
     else if (!/^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/.test(form.subdomain)) errs.subdomain = "Solo letras minúsculas, números y guiones";
+    else if (form.subdomain.trim().length < 3) errs.subdomain = "Usa al menos 3 caracteres";
+    else if (domainStatus.state === "taken" || domainStatus.state === "invalid") errs.subdomain = domainStatus.message;
+    else if (domainStatus.state === "checking") errs.subdomain = "Espera a que validemos el subdominio";
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -174,10 +235,29 @@ const BusinessSetupForm = ({ onSubmit, isLoading }: BusinessSetupFormProps) => {
             />
           </div>
           <p className="mt-2 text-sm text-muted-foreground">Tu acceso quedará como <span className="font-medium text-foreground">{form.subdomain || "tunegocio"}.mangopos.do</span></p>
+
+          {domainStatus.state === "checking" && (
+            <p className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              Validando disponibilidad...
+            </p>
+          )}
+          {domainStatus.state === "available" && (
+            <p className="mt-2 flex items-center gap-2 text-xs text-green-600">
+              <CheckCircle2 className="h-3.5 w-3.5" />
+              Disponible: {domainStatus.domain}
+            </p>
+          )}
+          {(domainStatus.state === "taken" || domainStatus.state === "invalid" || domainStatus.state === "error") && !errors.subdomain && (
+            <p className="mt-2 flex items-center gap-2 text-xs text-destructive">
+              <AlertTriangle className="h-3.5 w-3.5" />
+              {domainStatus.message}
+            </p>
+          )}
           {errors.subdomain && <p className="mt-1 text-xs text-destructive">{errors.subdomain}</p>}
         </div>
 
-        <button type="submit" disabled={isLoading} className="btn-primary mt-2 w-full flex items-center justify-center gap-2">
+        <button type="submit" disabled={isLoading || domainStatus.state === "checking"} className="btn-primary mt-2 w-full flex items-center justify-center gap-2">
           {isLoading ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />

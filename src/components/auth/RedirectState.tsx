@@ -1,9 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Check, Building2, ShieldCheck, ArrowRight, Loader2 } from "lucide-react";
 
 interface RedirectStateProps {
   subdomain?: string;
+  domain?: string;
+  message?: string;
+  autoRedirect?: boolean;
 }
 
 const steps = [
@@ -12,22 +15,32 @@ const steps = [
   { label: "Redirigiéndote al sistema", icon: ArrowRight },
 ];
 
-const RedirectState = ({ subdomain }: RedirectStateProps) => {
+const RedirectState = ({ subdomain, domain, message, autoRedirect = true }: RedirectStateProps) => {
   const [currentStep, setCurrentStep] = useState(0);
+  const targetUrl = useMemo(() => {
+    if (domain) return `https://${domain}`;
+    if (subdomain) return `https://${subdomain}.mangopos.do`;
+    return undefined;
+  }, [domain, subdomain]);
 
   useEffect(() => {
-    const t1 = setTimeout(() => setCurrentStep(1), 1500);
-    const t2 = setTimeout(() => setCurrentStep(2), 3000);
+    const t1 = setTimeout(() => setCurrentStep(1), 1200);
+    const t2 = setTimeout(() => setCurrentStep(2), 2400);
     const t3 = setTimeout(() => {
-      // In production: window.location.href = `https://${subdomain}.mangopos.do`
       setCurrentStep(3);
-    }, 4500);
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
-  }, [subdomain]);
+      if (autoRedirect && targetUrl) {
+        window.location.assign(targetUrl);
+      }
+    }, 3600);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, [autoRedirect, targetUrl]);
 
   return (
     <div className="flex flex-col items-center justify-center py-16 px-6 text-center max-w-md mx-auto">
-      {/* Spinner */}
       <div className="relative w-16 h-16 mb-8">
         {currentStep < 3 ? (
           <div className="w-16 h-16 rounded-full border-4 border-muted border-t-primary animate-spin-slow" />
@@ -45,11 +58,12 @@ const RedirectState = ({ subdomain }: RedirectStateProps) => {
       <h1 className="text-2xl font-bold text-foreground mb-2">
         {currentStep < 3 ? "Estamos preparando tu acceso" : "¡Todo listo!"}
       </h1>
-      <p className="text-sm text-muted-foreground mb-10">
-        {currentStep < 3
-          ? "Esto solo toma unos segundos..."
-          : `Tu cuenta está lista en ${subdomain || "tu"}.mangopos.do`}
+      <p className="text-sm text-muted-foreground mb-3">
+        {message || (currentStep < 3 ? "Esto solo toma unos segundos..." : `Tu cuenta está lista en ${domain || `${subdomain || "tu"}.mangopos.do`}`)}
       </p>
+      {targetUrl && (
+        <p className="text-xs text-muted-foreground mb-10">Destino: {targetUrl}</p>
+      )}
 
       <div className="w-full space-y-4">
         {steps.map((step, i) => {
@@ -85,6 +99,12 @@ const RedirectState = ({ subdomain }: RedirectStateProps) => {
           );
         })}
       </div>
+
+      {!autoRedirect && targetUrl && (
+        <a href={targetUrl} className="btn-primary mt-8 inline-flex">
+          Ir ahora
+        </a>
+      )}
     </div>
   );
 };

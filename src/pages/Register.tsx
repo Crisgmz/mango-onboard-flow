@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import AuthOnboardingLayout from "@/components/auth/AuthOnboardingLayout";
 import AuthStepper from "@/components/auth/AuthStepper";
@@ -23,14 +23,24 @@ const STEPS = [
 
 const RegisterPage = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const params = useMemo(() => parseOnboardingParams(searchParams), [searchParams]);
-  const plan = useMemo(() => getPlanInfo(params), [params]);
+  const initialPlan = useMemo(() => getPlanInfo(params), [params]);
+
+  const [selectedPlanId, setSelectedPlanId] = useState(initialPlan?.id ?? 'starter');
+  const plan = useMemo(
+    () => getPlanInfo({ ...params, plan: selectedPlanId }) ?? initialPlan,
+    [params, selectedPlanId, initialPlan],
+  );
 
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [registerData, setRegisterData] = useState<RegisterFormData | null>(null);
   const [businessData, setBusinessData] = useState<BusinessFormData | null>(null);
   const [submissionError, setSubmissionError] = useState<string | null>(null);
+  const [createdDomain, setCreatedDomain] = useState<string | undefined>();
+  const [requiresEmailConfirmation, setRequiresEmailConfirmation] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   if (!plan) {
     return (
@@ -60,7 +70,7 @@ const RegisterPage = () => {
     setSubmissionError(null);
 
     try {
-      await registerBusinessOnboarding({
+      const result = await registerBusinessOnboarding({
         fullName: registerData.fullName,
         email: registerData.email,
         phone: registerData.phone,
@@ -76,6 +86,15 @@ const RegisterPage = () => {
         source: params.source,
         campaign: params.campaign,
       });
+
+      setCreatedDomain(result.domain);
+      setRequiresEmailConfirmation(result.requiresEmailConfirmation);
+      setSuccessMessage(result.message);
+
+      if (result.requiresEmailConfirmation) {
+        navigate(`/verify-email?email=${encodeURIComponent(registerData.email)}`, { replace: true });
+        return;
+      }
 
       setCurrentStep(3);
     } catch (error) {
@@ -115,7 +134,12 @@ const RegisterPage = () => {
               animate={{ opacity: 1 }}
               className="p-8 sm:p-12"
             >
-              <RedirectState subdomain={businessData?.subdomain} />
+              <RedirectState
+                subdomain={businessData?.subdomain}
+                domain={createdDomain}
+                message={successMessage ?? undefined}
+                autoRedirect={!requiresEmailConfirmation}
+              />
             </motion.div>
           ) : (
             <motion.div
@@ -139,7 +163,7 @@ const RegisterPage = () => {
                 {currentStep === 1 && (
                   <PlanSummaryCard
                     plan={plan}
-                    onChangePlan={() => window.open("https://mangopos.do/#planes", "_blank")}
+                    onSelectPlan={setSelectedPlanId}
                   />
                 )}
                 {currentStep === 2 && (

@@ -18,18 +18,18 @@ export interface OnboardingParams {
 }
 
 export const PLANS: Record<string, PlanInfo> = {
-  base: {
-    id: 'base',
-    name: 'Base',
+  starter: {
+    id: 'starter',
+    name: 'Starter',
     billing: 'monthly',
     trial: 14,
-    price: 29,
-    priceYearly: 290,
+    price: 49.99,
+    priceYearly: 499.99,
     features: [
       '1 punto de venta',
       'Hasta 500 productos',
       'Reportes básicos',
-      'Soporte por email',
+      'Soporte por WhatsApp y email',
     ],
   },
   pro: {
@@ -37,37 +37,21 @@ export const PLANS: Record<string, PlanInfo> = {
     name: 'Pro',
     billing: 'monthly',
     trial: 14,
-    price: 59,
-    priceYearly: 590,
+    price: 79.99,
+    priceYearly: 799.99,
     features: [
       'Hasta 3 puntos de venta',
       'Productos ilimitados',
       'Reportes avanzados',
       'Soporte prioritario',
-      'Integraciones',
-    ],
-  },
-  enterprise: {
-    id: 'enterprise',
-    name: 'Enterprise',
-    billing: 'monthly',
-    trial: 14,
-    price: 149,
-    priceYearly: 1490,
-    features: [
-      'Puntos de venta ilimitados',
-      'Productos ilimitados',
-      'Reportes personalizados',
-      'Soporte dedicado 24/7',
-      'API completa',
-      'Multi-sucursal',
+      'Inventario y operación más completa',
     ],
   },
 };
 
 export function parseOnboardingParams(searchParams: URLSearchParams): OnboardingParams {
   return {
-    plan: searchParams.get('plan') || '',
+    plan: searchParams.get('plan') || 'starter',
     billing: searchParams.get('billing') || 'monthly',
     trial: parseInt(searchParams.get('trial') || '14', 10),
     source: searchParams.get('source') || '',
@@ -76,15 +60,21 @@ export function parseOnboardingParams(searchParams: URLSearchParams): Onboarding
 }
 
 export function getPlanInfo(params: OnboardingParams): PlanInfo | null {
-  const normalizedPlan = params.plan === 'starter' ? 'base' : params.plan;
-  const fallbackPlan = PLANS.base;
-  const plan = PLANS[normalizedPlan] || (normalizedPlan ? null : fallbackPlan);
-  if (!plan) return null;
+  const normalizedPlan = params.plan?.trim().toLowerCase() || 'starter';
+  const plan = PLANS[normalizedPlan] || PLANS.starter;
   return {
     ...plan,
     billing: (params.billing as 'monthly' | 'yearly') || plan.billing,
     trial: params.trial || plan.trial,
   };
+}
+
+export function getVisiblePlans(billing: 'monthly' | 'yearly', trial: number): PlanInfo[] {
+  return ['starter', 'pro'].map((id) => ({
+    ...PLANS[id],
+    billing,
+    trial,
+  }));
 }
 
 export const BUSINESS_TYPES = [

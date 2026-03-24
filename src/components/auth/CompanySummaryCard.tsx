@@ -10,6 +10,7 @@ interface CompanySummaryCardProps {
 const CompanySummaryCard = ({ companyName, subdomain, plan }: CompanySummaryCardProps) => {
   const price = plan.billing === 'yearly' ? plan.priceYearly ?? plan.price * 10 : plan.price;
   const billingLabel = plan.billing === 'yearly' ? '/año' : '/mes';
+  const formatMoney = (value: number) => `US$${value.toFixed(2)}`;
 
   return (
     <div className="p-7 h-full lg:p-8">
@@ -48,7 +49,7 @@ const CompanySummaryCard = ({ companyName, subdomain, plan }: CompanySummaryCard
                 <p className="text-xs text-muted-foreground">{plan.billing === 'yearly' ? 'Facturación anual' : 'Facturación mensual'}</p>
               </div>
             </div>
-            <span className="text-sm font-medium text-foreground">${price}.00{billingLabel}</span>
+            <span className="text-sm font-medium text-foreground">{formatMoney(price)}{billingLabel}</span>
           </div>
         </div>
       </div>
@@ -57,13 +58,13 @@ const CompanySummaryCard = ({ companyName, subdomain, plan }: CompanySummaryCard
         <div className="flex items-center justify-between">
           <span className="text-base font-medium text-foreground">Total ahora</span>
           <span className="text-base font-medium text-foreground">
-            {plan.trial > 0 ? "$0.00" : `$${price}.00`}
+            {plan.trial > 0 ? 'US$0.00' : formatMoney(price)}
           </span>
         </div>
         {plan.trial > 0 && (
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">Después de {plan.trial} días</span>
-            <span className="text-sm text-muted-foreground">US${price}.00</span>
+            <span className="text-sm text-muted-foreground">{formatMoney(price)}</span>
           </div>
         )}
       </div>

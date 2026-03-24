@@ -1,15 +1,45 @@
+import { useEffect, useState } from "react";
 import AuthOnboardingLayout from "@/components/auth/AuthOnboardingLayout";
 import TenantSelector from "@/components/auth/TenantSelector";
-
-const MOCK_TENANTS = [
-  { id: "1", name: "Restaurante El Mango", subdomain: "elmango", role: "Administrador" },
-  { id: "2", name: "Café Central", subdomain: "cafecentral", role: "Gerente" },
-  { id: "3", name: "Pizzería Don Mario", subdomain: "donmario", role: "Operador" },
-];
+import { getUserBusinesses, type UserBusiness } from "@/lib/auth";
+import { AlertTriangle, Loader2 } from "lucide-react";
 
 const SelectBusinessPage = () => {
-  const handleSelect = (tenant: { subdomain: string }) => {
-    console.log("Redirecting to:", `${tenant.subdomain}.mangopos.do`);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [tenants, setTenants] = useState<UserBusiness[]>([]);
+
+  useEffect(() => {
+    const load = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const data = await getUserBusinesses();
+        const filtered = data.filter((item) => item.businesses?.domain);
+
+        if (filtered.length === 1) {
+          const domain = filtered[0].businesses?.domain;
+          if (domain) {
+            window.location.assign(`https://${domain}`);
+            return;
+          }
+        }
+
+        setTenants(filtered);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "No pudimos cargar tus negocios.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    void load();
+  }, []);
+
+  const handleSelect = (tenant: UserBusiness) => {
+    const domain = tenant.businesses?.domain;
+    if (!domain) return;
+    window.location.assign(`https://${domain}`);
   };
 
   return (
@@ -24,7 +54,24 @@ const SelectBusinessPage = () => {
           </div>
         </div>
         <div className="p-8 sm:p-10">
-          <TenantSelector tenants={MOCK_TENANTS} onSelect={handleSelect} />
+          {isLoading ? (
+            <div className="flex flex-col items-center gap-3 py-10 text-center text-muted-foreground">
+              <Loader2 className="h-6 w-6 animate-spin" />
+              <p>Cargando tus negocios...</p>
+            </div>
+          ) : error ? (
+            <div className="flex items-start gap-3 rounded-[10px] border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+              <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+              <p>{error}</p>
+            </div>
+          ) : tenants.length === 0 ? (
+            <div className="flex items-start gap-3 rounded-[10px] border border-border bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
+              <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+              <p>No tienes negocios asociados todavía.</p>
+            </div>
+          ) : (
+            <TenantSelector tenants={tenants} onSelect={handleSelect} />
+          )}
         </div>
       </div>
     </AuthOnboardingLayout>
