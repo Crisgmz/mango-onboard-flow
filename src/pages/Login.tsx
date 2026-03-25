@@ -45,9 +45,17 @@ const LoginPage = () => {
 
       if (businesses.length === 1) {
         const domain = businesses[0].businesses?.domain;
-        const session = authData.session;
+        // La sesión de 'authData' puede ser null si Supabase requiere confirmación de email.
+        // En ese caso, intentamos obtenerla directamente del cliente.
+        const session = authData.session ?? (await import('@/lib/supabase').then(m => m.supabase.auth.getSession().then(r => r.data.session)));
         if (domain && session) {
-          const target = `https://${domain}/#/auth?at=${encodeURIComponent(session.access_token)}&rt=${encodeURIComponent(session.refresh_token)}`;
+          // IMPORTANTE: los tokens van ANTES del '#' como query params reales.
+          // Esto permite que GoRouter en Flutter los lea correctamente desde state.uri.queryParameters.
+          // Formato: https://tenant.mangopos.do/?at=TOKEN&rt=TOKEN#/auth
+          const at = encodeURIComponent(session.access_token);
+          const rt = encodeURIComponent(session.refresh_token ?? '');
+          const target = `https://${domain}/?at=${at}&rt=${rt}#/auth`;
+          console.log('[MangoPOS] Redirigiendo a tenant:', domain);
           window.location.assign(target);
           return;
         }

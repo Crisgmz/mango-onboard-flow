@@ -21,7 +21,9 @@ const SelectBusinessPage = () => {
           const domain = nextSelection.items[0].businesses?.domain;
           const session = await getCurrentSession();
           if (domain && session) {
-            const target = `https://${domain}/#/auth?at=${encodeURIComponent(session.access_token)}&rt=${encodeURIComponent(session.refresh_token)}`;
+            const at = encodeURIComponent(session.access_token);
+            const rt = encodeURIComponent(session.refresh_token ?? '');
+            const target = `https://${domain}/?at=${at}&rt=${rt}#/auth`;
             window.location.assign(target);
             return;
           }
@@ -43,7 +45,9 @@ const SelectBusinessPage = () => {
     if (!domain) return;
     const session = await getCurrentSession();
     if (!session) return;
-    const target = `https://${domain}/#/auth?at=${encodeURIComponent(session.access_token)}&rt=${encodeURIComponent(session.refresh_token)}`;
+    const at = encodeURIComponent(session.access_token);
+    const rt = encodeURIComponent(session.refresh_token ?? '');
+    const target = `https://${domain}/?at=${at}&rt=${rt}#/auth`;
     window.location.assign(target);
   };
 
