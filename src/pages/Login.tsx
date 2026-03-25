@@ -45,8 +45,10 @@ const LoginPage = () => {
 
       if (businesses.length === 1) {
         const domain = businesses[0].businesses?.domain;
-        if (domain) {
-          window.location.assign(`https://${domain}`);
+        const session = authData.session;
+        if (domain && session) {
+          const target = `https://${domain}/#/auth?at=${encodeURIComponent(session.access_token)}&rt=${encodeURIComponent(session.refresh_token)}`;
+          window.location.assign(target);
           return;
         }
       }

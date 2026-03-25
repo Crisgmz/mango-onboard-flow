@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import AuthOnboardingLayout from "@/components/auth/AuthOnboardingLayout";
 import TenantSelector from "@/components/auth/TenantSelector";
-import { buildUserBusinessSelectionModel, getUserBusinesses, type UserBusinessSelectionModel } from "@/lib/auth";
+import { buildUserBusinessSelectionModel, getUserBusinesses, getCurrentSession, type UserBusinessSelectionModel } from "@/lib/auth";
 import { AlertTriangle, Loader2 } from "lucide-react";
 
 const SelectBusinessPage = () => {
@@ -19,8 +19,10 @@ const SelectBusinessPage = () => {
 
         if (nextSelection.items.length === 1) {
           const domain = nextSelection.items[0].businesses?.domain;
-          if (domain) {
-            window.location.assign(`https://${domain}`);
+          const session = await getCurrentSession();
+          if (domain && session) {
+            const target = `https://${domain}/#/auth?at=${encodeURIComponent(session.access_token)}&rt=${encodeURIComponent(session.refresh_token)}`;
+            window.location.assign(target);
             return;
           }
         }
@@ -36,10 +38,12 @@ const SelectBusinessPage = () => {
     void load();
   }, []);
 
-  const handleSelect = (tenant: (typeof selection.items)[number]) => {
+  const handleSelect = async (tenant: (typeof selection.items)[number]) => {
     const domain = tenant.businesses?.domain;
     if (!domain) return;
-    const target = `https://${domain}/#/login?business_id=${encodeURIComponent(tenant.business_id)}`;
+    const session = await getCurrentSession();
+    if (!session) return;
+    const target = `https://${domain}/#/auth?at=${encodeURIComponent(session.access_token)}&rt=${encodeURIComponent(session.refresh_token)}`;
     window.location.assign(target);
   };
 
