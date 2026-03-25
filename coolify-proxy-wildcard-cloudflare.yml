@@ -1,0 +1,66 @@
+name: coolify-proxy
+networks:
+  coolify:
+    external: true
+services:
+  traefik:
+    container_name: coolify-proxy
+    image: 'traefik:v3.6'
+    restart: unless-stopped
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    networks:
+      - coolify
+    ports:
+      - '80:80'
+      - '443:443'
+      - '443:443/udp'
+      - '8080:8080'
+    healthcheck:
+      test: 'wget -qO- http://localhost:80/ping || exit 1'
+      interval: 4s
+      timeout: 2s
+      retries: 5
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock:ro'
+      - '/data/coolify/proxy/:/traefik'
+    environment:
+      - CF_DNS_API_TOKEN=REEMPLAZA_CON_TU_CLOUDFLARE_TOKEN
+    command:
+      - '--ping=true'
+      - '--ping.entrypoint=http'
+      - '--api.dashboard=true'
+      - '--entrypoints.http.address=:80'
+      - '--entrypoints.https.address=:443'
+      - '--entrypoints.http.http.encodequerysemicolons=true'
+      - '--entryPoints.http.http2.maxConcurrentStreams=250'
+      - '--entrypoints.https.http.encodequerysemicolons=true'
+      - '--entryPoints.https.http2.maxConcurrentStreams=250'
+      - '--entrypoints.https.http3'
+      - '--providers.file.directory=/traefik/dynamic/'
+      - '--providers.file.watch=true'
+      - '--providers.docker=true'
+      - '--providers.docker.exposedbydefault=false'
+      - '--certificatesresolvers.letsencrypt.acme.email=REEMPLAZA_CON_TU_EMAIL'
+      - '--certificatesresolvers.letsencrypt.acme.storage=/traefik/acme.json'
+      - '--certificatesresolvers.letsencrypt.acme.dnschallenge=true'
+      - '--certificatesresolvers.letsencrypt.acme.dnschallenge.provider=cloudflare'
+      - '--certificatesresolvers.letsencrypt.acme.dnschallenge.delaybeforecheck=30'
+      - '--api.insecure=false'
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.traefik.entrypoints=http
+      - traefik.http.routers.traefik.service=api@internal
+      - traefik.http.services.traefik.loadbalancer.server.port=8080
+      - coolify.managed=true
+      - coolify.proxy=true
+
+# Notas:
+# 1) Reemplaza CF_DNS_API_TOKEN por un token de Cloudflare con permisos:
+#    - Zone / DNS / Edit
+#    - Zone / Zone / Read
+#    limitado a la zona mangopos.do
+# 2) Reemplaza el email de Let's Encrypt.
+# 3) Este archivo cambia Traefik de HTTP challenge a DNS challenge, necesario para wildcard certs como *.mangopos.do.
+# 4) Antes de aplicar, haz backup de tu configuración actual.
+# 5) Después de aplicar y reiniciar Traefik, vuelve a probar https://tropellacoffee.mangopos.do

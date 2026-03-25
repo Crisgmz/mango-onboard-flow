@@ -42,6 +42,12 @@ export interface UserBusiness {
   } | null;
 }
 
+export interface UserBusinessSelectionModel {
+  mode: 'business' | 'branch';
+  companyName?: string;
+  items: UserBusiness[];
+}
+
 const RESERVED_SUBDOMAINS = new Set(['www', 'api', 'admin', 'app', 'mail', 'static']);
 const ROLE_PRIORITY: Record<string, number> = {
   owner: 100,
@@ -79,6 +85,10 @@ function rolePriority(role: string) {
   return ROLE_PRIORITY[role?.toLowerCase?.() ?? ''] ?? 0;
 }
 
+function normalizeCompanyName(name?: string | null) {
+  return name?.trim().toLowerCase() ?? '';
+}
+
 export function normalizeUserBusinesses(rows: UserBusiness[]): UserBusiness[] {
   const unique = new Map<string, UserBusiness>();
 
@@ -105,6 +115,26 @@ export function normalizeUserBusinesses(rows: UserBusiness[]): UserBusiness[] {
     const nameB = b.businesses?.branch_name || b.businesses?.business_name || b.business_id;
     return nameA.localeCompare(nameB, 'es');
   });
+}
+
+export function buildUserBusinessSelectionModel(rows: UserBusiness[]): UserBusinessSelectionModel {
+  const items = normalizeUserBusinesses(rows).filter((item) => item.businesses?.domain);
+  const companyNames = Array.from(
+    new Set(items.map((item) => normalizeCompanyName(item.businesses?.business_name)).filter(Boolean)),
+  );
+
+  if (items.length > 1 && companyNames.length === 1) {
+    return {
+      mode: 'branch',
+      companyName: items[0].businesses?.business_name?.trim() || undefined,
+      items,
+    };
+  }
+
+  return {
+    mode: 'business',
+    items,
+  };
 }
 
 export async function isDomainAvailable(raw: string) {

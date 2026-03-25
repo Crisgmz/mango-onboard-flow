@@ -15,7 +15,7 @@ select
   created_at,
   last_sign_in_at
 from auth.users
-where lower(email) = lower('TU_CORREO_AQUI');
+where lower(email) = lower('tropellacoffee@gmail.com');
 
 
 -- 2. Ver todos los negocios asociados a ese user_id
